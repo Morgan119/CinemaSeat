@@ -1,4 +1,5 @@
-Django>=4.2
-qrcode[pil]
-PyMuPDF
-Pillow
+Django>=4.2,<5.1
+qrcode[pil]>=7.4
+PyMuPDF>=1.24
+Pillow>=10.0
+gunicorn>=21.0
