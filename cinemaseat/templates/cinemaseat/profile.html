@@ -1,0 +1,37 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My profile · CinemaSeat</title>
+<link rel="stylesheet" href="{% static 'cinemaseat/style.css' %}">
+</head>
+<body>
+<nav>
+  <a class="brand" href="/">◉ <span>Cinema<span>Seat</span></span></a>
+  <div class="navlinks"><a href="/">Home</a><a href="/bookings/">My bookings</a><a class="active" href="/profile/">Profile</a><a href="/ai/">AI</a></div>
+  <div class="navright"><a class="btn outline" href="/logout/">Log out</a></div>
+</nav>
+<main class="account-page">
+  <section class="auth-card">
+    <p class="eyebrow">MY PROFILE</p>
+    <div class="profile-head"><span class="avatar large">{{ user_initials }}</span><div><h1>{{ user.first_name|default:user.username }}</h1><p class="muted">@{{ user.username }}</p></div></div>
+    {% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}
+    <form method="post">{% csrf_token %}
+      <label>Name<input name="name" value="{{ user.first_name }}" required></label>
+      <label>Email<input type="email" name="email" value="{{ user.email }}" required></label>
+      <label>Username<input value="{{ user.username }}" disabled></label>
+      <button class="btn primary full">Save profile</button>
+    </form>
+  </section>
+  <aside class="summary">
+    <p class="eyebrow">ACCOUNT SNAPSHOT</p>
+    <h2>{{ booking_count }} booking{{ booking_count|pluralize }}</h2>
+    <p>Total spent <strong>UGX {{ spent|floatformat:0 }}</strong></p>
+    <a class="btn primary" href="/bookings/">Open my bookings</a>
+    <a class="btn" href="/">Browse movies</a>
+  </aside>
+</main>
+<a class="ai-launcher" href="/ai/" aria-label="Open CinemaSeat AI">✦ AI</a></body>
+</html>

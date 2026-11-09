@@ -1,0 +1,17 @@
+{% extends 'cinemaseat/admin_base.html' %}
+{% block content %}
+<div class="top"><div><p>SHOWTIME SCHEDULING</p><h1>Manage showtimes</h1></div></div>
+<div class="layout">
+  <form class="panel" method="post">{% csrf_token %}
+    <input type="hidden" name="showtime_id" value="{{ edit.id }}">
+    <label class="label">Movie<select name="movie" required>{% for movie in movies %}<option value="{{ movie.id }}" {% if edit.movie_id == movie.id %}selected{% endif %}>{{ movie.title }}</option>{% endfor %}</select></label>
+    <label class="label">Date<input type="date" name="show_date" value="{{ edit.show_date|date:'Y-m-d' }}" required></label>
+    <label class="label">Time picker<input type="time" name="show_time" value="{{ edit.show_time|time:'H:i' }}" required></label>
+    <label class="label">Standard price<input type="number" name="price_standard" value="{{ edit.price_standard|default:'25000' }}" required></label>
+    <label class="label">VIP price<input type="number" name="price_vip" value="{{ edit.price_vip|default:'35000' }}" required></label>
+    <label class="check"><input type="checkbox" name="is_active" {% if edit.is_active or not edit %}checked{% endif %}> Active</label>
+    <button class="btn">Save showtime</button>{% if edit %}<button class="btn ghost" name="delete" value="1">Delete</button>{% endif %}
+  </form>
+  <section class="panel"><h2>Scheduled showtimes</h2>{% for show in showtimes %}<div class="row"><span><b>{{ show.movie.title }}</b><br>{{ show.show_date }} · {{ show.show_time }}</span><a href="/admin/showtimes/?edit={{ show.id }}">Edit</a></div>{% empty %}<p>No showtimes scheduled yet.</p>{% endfor %}</section>
+</div>
+{% endblock %}

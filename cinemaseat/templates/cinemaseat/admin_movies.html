@@ -1,0 +1,21 @@
+{% extends 'cinemaseat/admin_base.html' %}
+{% block content %}
+<div class="top"><div><p>MOVIE MANAGEMENT</p><h1>{% if edit %}Edit movie{% else %}Add movie{% endif %}</h1></div></div>
+<div class="layout">
+  <form class="panel" method="post" enctype="multipart/form-data">{% csrf_token %}
+    <input type="hidden" name="movie_id" value="{{ edit.id }}">
+    <label class="label">Poster image<input type="file" name="poster_file" accept="image/*"></label>
+    <label class="label">Title<input name="title" value="{{ edit.title }}" required></label>
+    <label class="label">Description<textarea name="description" required>{{ edit.description }}</textarea></label>
+    <label class="label">Duration<input name="duration" value="{{ edit.duration }}" placeholder="2h 10m" required></label>
+    <label class="label">Genre<input name="genre" value="{{ edit.genre|default:'Drama' }}" required></label>
+    <label class="label">Rating<input name="rating" value="{{ edit.rating|default:'PG-13' }}"></label>
+    <label class="label">Score<input type="number" step="0.1" min="0" max="10" name="score" value="{{ edit.score|default:'8.0' }}"></label>
+    <label class="label">Director<input name="director" value="{{ edit.director }}"></label>
+    <label class="check"><input type="checkbox" name="featured" {% if edit.featured %}checked{% endif %}> Featured movie</label>
+    <button class="btn">Save movie</button>
+    {% if edit %}<button class="btn ghost" name="delete" value="1">Delete</button>{% endif %}
+  </form>
+  <section class="panel"><h2>Movies table</h2><table class="table"><tr><th>Title</th><th>Genre</th><th></th></tr>{% for movie in movies %}<tr><td>{{ movie.title }}</td><td>{{ movie.genre }}</td><td><a href="/admin/movies/?edit={{ movie.id }}">Edit</a></td></tr>{% endfor %}</table></section>
+</div>
+{% endblock %}

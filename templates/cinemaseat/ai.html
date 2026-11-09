@@ -1,0 +1,68 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CinemaSeat AI</title>
+<link rel="stylesheet" href="{% static 'cinemaseat/style.css' %}">
+</head>
+<body>
+<nav>
+  <a class="brand" href="/">◉ <span>Cinema<span>Seat</span></span></a>
+  <div class="navlinks"><a href="/">Discover</a><a class="active" href="/ai/">AI</a></div>
+</nav>
+<main class="ai-page">
+  <section>
+    <p class="eyebrow">CINEMASEAT AI</p>
+    <h1>Find your next <em>feat.</em></h1>
+    <div class="ai-tools">
+      <button type="button" class="chip selected" data-tool="assistant">Booking assistant</button>
+      <button type="button" class="chip" data-tool="recommend">Recommendations</button>
+      <button type="button" class="chip" data-tool="search">Smart search</button>
+    </div>
+    <form id="ai-form" class="ai-form">
+      <input id="ai-text" placeholder="Try: Zendaya net worth, or how much did Barbie make?" required>
+      <button class="btn primary" type="submit">Ask AI</button>
+    </form>
+    <div id="ai-reply" class="ai-reply">Tell me a mood, movie, showtime question, or payment question.</div>
+    <div id="ai-results" class="ai-results"></div>
+  </section>
+  <aside>
+    <p class="eyebrow">PICKED FOR YOU</p>
+    <div class="ai-results">
+      {% for movie in picks %}
+        <a class="ai-card" href="{{ movie.url }}"><img src="{{ movie.poster }}" alt=""><span><b>{{ movie.title }}</b><small>{{ movie.reason }}</small></span></a>
+      {% endfor %}
+    </div>
+  </aside>
+</main>
+<script>
+let tool = 'assistant';
+const reply = document.querySelector('#ai-reply');
+const results = document.querySelector('#ai-results');
+document.querySelectorAll('[data-tool]').forEach(button => button.onclick = () => {
+  document.querySelectorAll('[data-tool]').forEach(item => item.classList.remove('selected'));
+  button.classList.add('selected');
+  tool = button.dataset.tool;
+});
+function cards(items){
+  results.innerHTML = (items || []).map(movie => `<a class="ai-card" href="${movie.url}"><img src="${movie.poster}" alt=""><span><b>${movie.title}</b><small>${movie.reason}</small></span></a>`).join('');
+}
+document.querySelector('#ai-form').onsubmit = async event => {
+  event.preventDefault();
+  reply.textContent = 'Thinking...';
+  const response = await fetch('/ai/ask/', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-CSRFToken':'{{ csrf_token }}'},
+    body: JSON.stringify({kind: tool, text: document.querySelector('#ai-text').value})
+  });
+  const data = await response.json();
+  reply.textContent = data.reply || (data.results?.length ? `Found ${data.results.length} movies.` : 'No matching movies.');
+  const intel = (data.cards || []).map(card => `<article class="ai-card intel"><span><b>${card.title}</b><small>${card.meta}</small><small>${card.worth}</small><small>${card.detail}</small></span></article>`).join('');
+  results.innerHTML = intel;
+  cards(data.movies || data.results || []);
+};
+</script>
+<a class="ai-launcher" href="/ai/" aria-label="Open CinemaSeat AI">✦ AI</a></body>
+</html>

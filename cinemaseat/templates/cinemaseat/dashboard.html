@@ -1,0 +1,15 @@
+{% extends 'cinemaseat/admin_base.html' %}
+{% block title %}Admin dashboard · CinemaSeat{% endblock %}
+{% block content %}
+<div class="top"><div><p>ADMINISTRATOR PANEL</p><h1>Good day, {{ user.first_name|default:user.username }}</h1></div><a class="btn" href="/admin/movies/">+ Add movie</a></div>
+<section class="cards">
+  <div class="card"><small>Bookings today</small><strong>{{ today }}</strong><span class="accent">{{ week }} this week · {{ month }} this month</span></div>
+  <div class="card"><small>Revenue</small><strong>UGX {{ revenue|floatformat:0 }}</strong><span class="accent">Confirmed payments</span></div>
+  <div class="card"><small>Occupancy rate</small><strong>{{ occupancy }}%</strong><span>Seats sold across current capacity</span></div>
+  <div class="card"><small>Movies</small><strong>{{ movie_count }}</strong><span>Ready for showtimes</span></div>
+</section>
+<div class="layout">
+  <section class="panel"><h2>Popular movies</h2>{% for item in popular %}<div class="row"><span>{{ item.movie }}</span><b>{{ item.total }} bookings</b></div>{% empty %}<p>No paid bookings yet.</p>{% endfor %}</section>
+  <section class="panel"><h2>Recent bookings</h2>{% for ticket in recent %}<div class="row"><span><b>{{ ticket.reference }}</b><br>{{ ticket.customer_name }} · {{ ticket.movie }}</span><span>{{ ticket.status|upper }}</span></div>{% empty %}<p>Bookings will appear here.</p>{% endfor %}</section>
+</div>
+{% endblock %}

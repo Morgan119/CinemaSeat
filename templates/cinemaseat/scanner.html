@@ -1,0 +1,66 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ticket scanner · CinemaSeat</title>
+<link rel="stylesheet" href="{% static 'cinemaseat/style.css' %}">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/">◉ <span>Cinema<span>Seat</span></span></a>
+  <div class="navlinks"><a href="/admin/dashboard/">Dashboard</a><a class="active" href="/scan/">Scanner</a></div>
+</nav>
+<main class="scan-page">
+  <section>
+    <p class="eyebrow">STAFF GATE</p>
+    <h1>Scan a ticket <em>QR code.</em></h1>
+    <p class="muted">Point the camera at a CinemaSeat booking QR code, or enter the reference manually.</p>
+    <div id="reader"></div>
+    <form id="manual-scan" class="manual-scan">
+      {% csrf_token %}
+      <input id="code" name="code" placeholder="CS- reference or scanned text" required>
+      <button class="btn primary" type="submit">Check ticket</button>
+    </form>
+    <div id="scan-result" class="scan-result" hidden></div>
+  </section>
+  <aside class="summary">
+    <p class="eyebrow">RECENT TICKETS</p>
+    {% for ticket in recent %}
+      <div class="row"><b>{{ ticket.reference }}</b><span>{{ ticket.status|upper }}</span><small>{{ ticket.movie }} · {{ ticket.show_time }}</small></div>
+    {% empty %}
+      <p class="muted">No tickets have been issued yet.</p>
+    {% endfor %}
+  </aside>
+</main>
+<script>
+const result = document.querySelector('#scan-result');
+const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+function show(data){
+  result.hidden = false;
+  result.className = 'scan-result ' + (data.status || 'invalid');
+  const t = data.ticket || {};
+  result.innerHTML = `<strong>${data.message}</strong>${t.reference ? `<p>${t.reference}<br>${t.movie}<br>${t.time} · Seats ${t.seats}<br>${t.customer} · ${t.method}<br>${t.total}</p>` : ''}`;
+}
+async function check(code){
+  const body = new FormData();
+  body.append('code', code);
+  body.append('csrfmiddlewaretoken', token);
+  const response = await fetch('/scan/check/', {method:'POST', body, headers:{'X-CSRFToken': token}});
+  show(await response.json());
+}
+document.querySelector('#manual-scan').addEventListener('submit', event => {
+  event.preventDefault();
+  check(document.querySelector('#code').value);
+});
+if (window.Html5Qrcode) {
+  const camera = new Html5Qrcode('reader');
+  camera.start({facingMode:'environment'}, {fps:8, qrbox:220}, code => check(code), () => {}).catch(() => {
+    document.querySelector('#reader').innerHTML = '<p class="muted">Camera permission was not granted. Use manual reference entry.</p>';
+  });
+}
+</script>
+<a class="ai-launcher" href="/ai/" aria-label="Open CinemaSeat AI">✦ AI</a></body>
+</html>

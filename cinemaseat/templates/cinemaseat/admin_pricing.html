@@ -1,0 +1,9 @@
+{% extends 'cinemaseat/admin_base.html' %}
+{% block content %}
+<div class="top"><div><p>SEAT PRICING</p><h1>Update prices</h1></div></div>
+<form method="post" class="panel">{% csrf_token %}
+  <table class="table"><tr><th>Movie</th><th>Showtime</th><th>Standard</th><th>VIP</th></tr>
+  {% for show in showtimes %}<tr><td>{{ show.movie.title }}</td><td>{{ show.show_date }} {{ show.show_time }}</td><td><input type="number" name="standard_{{ show.id }}" value="{{ show.price_standard }}"></td><td><input type="number" name="vip_{{ show.id }}" value="{{ show.price_vip }}"></td></tr>{% empty %}<tr><td colspan="4">Schedule a showtime before setting prices.</td></tr>{% endfor %}
+  </table><p><button class="btn">Save all prices</button></p>
+</form>
+{% endblock %}

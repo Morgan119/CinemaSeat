@@ -1,0 +1,16 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}CinemaSeat Admin{% endblock %}</title>
+<style>
+body{margin:0;background:#f5f2ee;color:#201d1b;font-family:Arial,sans-serif}.side{position:fixed;width:235px;height:100vh;background:#201d1b;color:#fff;padding:28px 22px;box-sizing:border-box}.brand{font-size:21px;font-weight:bold;color:#f06b68;margin-bottom:42px}.brand b{color:#e3ae58}.side a{display:block;color:#aaa;text-decoration:none;padding:12px;border-radius:6px;margin:4px 0}.side a:hover,.side a.active{background:#b9272f;color:white}.main{margin-left:235px;padding:34px 5%}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0}.card,.panel,form.panel{background:#fff;border-radius:8px;padding:20px;box-shadow:0 5px 20px #ddd8d2}.card strong{display:block;font-size:28px;margin-top:8px}.accent{color:#b9272f}.layout{display:grid;grid-template-columns:1fr 1.2fr;gap:20px}.label{display:block;font-size:12px;color:#777;margin:12px 0 5px}input,select,textarea{width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:6px;padding:11px}textarea{min-height:90px}.btn{background:#b9272f;color:#fff;border:0;border-radius:5px;padding:11px 16px;text-decoration:none;font-weight:bold;display:inline-block}.ghost{background:#eee;color:#222}.table{width:100%;border-collapse:collapse;background:#fff}.td,.table td,.table th{padding:11px;border-bottom:1px solid #eee;text-align:left;font-size:13px}.row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eee}.check{display:flex;gap:8px;align-items:center;margin:12px 0}@media(max-width:850px){.side{position:static;width:auto;height:auto}.main{margin:0;padding:20px}.cards,.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<aside class="side"><div class="brand">◉ Cinema<b>Seat</b></div><a class="{% if request.path == '/admin/dashboard/' %}active{% endif %}" href="/admin/dashboard/">Dashboard</a><a class="{% if '/admin/movies/' in request.path %}active{% endif %}" href="/admin/movies/">Movies</a><a href="/admin/showtimes/">Showtimes</a><a href="/admin/pricing/">Seat pricing</a><a href="/admin/bookings/">Bookings</a><a href="/admin/reports/">Reports</a><a href="/scan/">Scan tickets</a><a href="/admin/">Django admin</a><a href="/">View website</a><a href="/logout/">Log out</a></aside>
+<main class="main">{% block content %}{% endblock %}</main>
+</body>
+</html>

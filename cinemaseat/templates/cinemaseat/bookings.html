@@ -1,0 +1,29 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My bookings · CinemaSeat</title>
+<link rel="stylesheet" href="{% static 'cinemaseat/style.css' %}">
+</head>
+<body>
+<nav>
+  <a class="brand" href="/">◉ <span>Cinema<span>Seat</span></span></a>
+  <div class="navlinks"><a href="/">Home</a><a class="active" href="/bookings/">My bookings</a><a href="/profile/">Profile</a><a href="/ai/">AI</a></div>
+  <div class="navright"><a class="avatar" href="/profile/">{{ user_initials }}</a></div>
+</nav>
+<main class="bookings-page">
+  <p class="eyebrow">MY CINEMASEAT</p>
+  <h1>Your bookings, <em>{{ user.first_name|default:user.username }}.</em></h1>
+  {% for ticket in tickets %}
+    <article class="booking-record">
+      <div><small>{{ ticket.reference }}</small><h2>{{ ticket.movie }}</h2><p>{{ ticket.show_time }} · Seats {{ ticket.seats }}</p></div>
+      <div><b>UGX {{ ticket.total|floatformat:0 }}</b><span class="status {{ ticket.status }}">{{ ticket.status|upper }}</span><small>{{ ticket.payment_method }}</small><a href="/ticket/{{ ticket.reference }}.pdf">Download PDF</a></div>
+    </article>
+  {% empty %}
+    <div class="empty-bookings"><h2>No bookings yet.</h2><p>Choose a movie, select a showtime, and your ticket will appear here.</p><a class="btn primary" href="/">Book a movie</a></div>
+  {% endfor %}
+</main>
+<a class="ai-launcher" href="/ai/" aria-label="Open CinemaSeat AI">✦ AI</a></body>
+</html>
