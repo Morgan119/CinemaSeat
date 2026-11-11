@@ -44,3 +44,11 @@ def profile(request):
 def my_bookings(request):
     tickets = Ticket.objects.filter(customer_username=request.user.username).order_by('-created_at')
     return render(request, 'cinemaseat/bookings.html', {'tickets': tickets, 'user_initials': (request.user.first_name or request.user.username)[:2].upper()})
+
+
+def privacy_policy(request):
+    return render(request, 'cinemaseat/privacy_policy.html')
+
+
+def terms_conditions(request):
+    return render(request, 'cinemaseat/terms_conditions.html')

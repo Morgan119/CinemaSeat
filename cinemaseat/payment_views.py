@@ -1,12 +1,15 @@
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.utils import timezone
+import re
 import uuid
-import qrcode
 import base64
 from io import BytesIO
+
+import qrcode
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.shortcuts import redirect, render, get_object_or_404
+from django.utils import timezone
+
 from .models import Ticket
 
 METHODS = {
@@ -15,6 +18,23 @@ METHODS = {
     'card': 'Card payment',
     'cash': 'Cash at cinema',
 }
+
+
+def payment_matches_method(method, payment_details):
+    if method not in {'mtn', 'airtel'}:
+        return True
+
+    value = (payment_details or '').strip().lower()
+    if not value:
+        return False
+
+    normalized = re.sub(r'[^a-z0-9]+', '', value)
+    if method == 'mtn' and ('airtel' in normalized or 'airtelmoney' in normalized):
+        return False
+    if method == 'airtel' and ('mtn' in normalized or 'mtnmobilemoney' in normalized):
+        return False
+    return True
+
 
 def ticket_pdf(ticket):
     import fitz
@@ -65,7 +85,21 @@ def payment(request):
     seat_list = [seat for seat in seats.split(',') if seat]
     total = len(seat_list) * 25000
     if request.method == 'POST':
-        method = METHODS.get(request.POST.get('method'), 'MTN Mobile Money')
+        selected_method = request.POST.get('method', 'mtn')
+        payment_details = request.POST.get('reference') or request.POST.get('payment_details') or ''
+        if selected_method in {'mtn', 'airtel'} and not payment_matches_method(selected_method, payment_details):
+            network_name = 'MTN' if selected_method == 'mtn' else 'Airtel'
+            messages.error(request, f'Select an {network_name} number for your {network_name} payment.')
+            return render(request, 'cinemaseat/payment.html', {
+                'movie': movie,
+                'seat_list': seat_list,
+                'total': total,
+                'show_time': show_time,
+                'seats': ','.join(seat_list),
+                'selected_method': selected_method,
+            })
+
+        method = METHODS.get(selected_method, 'MTN Mobile Money')
         reference = 'CS-' + uuid.uuid4().hex[:8].upper()
         payload = f'CINEMASEAT|{reference}|{movie}|{show_time}|{",".join(seat_list)}'
         ticket = Ticket.objects.create(
@@ -96,6 +130,7 @@ def payment(request):
         'total': total,
         'show_time': show_time,
         'seats': ','.join(seat_list),
+        'selected_method': request.GET.get('method', 'mtn'),
     })
 
 @login_required(login_url='/login/')

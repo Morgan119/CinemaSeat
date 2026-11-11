@@ -32,6 +32,8 @@ urlpatterns = [
     path("bookings/", views.my_bookings, name="my_bookings"),
     path("movie/<int:movie_id>/", views.movie_detail, name="movie_detail"),
     path("movie/<int:movie_id>/book/", views.booking, name="booking"),
+    path("privacy-policy/", views.privacy_policy, name="privacy_policy"),
+    path("terms-and-conditions/", views.terms_conditions, name="terms_conditions"),
 
     # Payment and booking confirmation
     path("payment/", payment, name="payment"),
