@@ -21,7 +21,8 @@
 .bookings-page{padding:46px 6%}.booking-record{display:flex;justify-content:space-between;gap:18px;background:#fff;border-radius:8px;padding:18px;margin:14px 0}
 .status{display:inline-block;border-radius:20px;padding:4px 8px;font-size:11px;background:#e9f6ed;color:#27834a}.status.used{background:#fff4df;color:#9a6700}
 .empty-bookings{background:#fff;border-radius:8px;padding:28px}
-@media(max-width:800px){.account-page{grid-template-columns:1fr}.booking-record{display:block}}
+.site-footer{display:grid;grid-template-columns:1.4fr 2.2fr;gap:50px;padding:40px 6% 60px;border-top:1px solid #e4ddd6;background:var(--cream);color:#6f675f}.footer-brand{display:flex;align-items:center;gap:12px;font-size:28px;font-weight:700;color:var(--ink)}.brand-mark{font-size:26px;color:var(--red)}.footer-links{display:grid;grid-template-columns:repeat(3, minmax(120px,1fr));gap:30px}.footer-links h4{margin:0 0 18px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#7d7773}.footer-links a{display:block;margin:10px 0;color:#504a46;text-decoration:none;font-size:15px}.policy-page{max-width:900px;margin:60px auto;padding:0 20px}.policy-card{width:100%;max-width:none;padding:42px 52px}.policy-card h3{margin-top:24px;margin-bottom:8px}.policy-card p{color:#514c48;line-height:1.7}.policy-card a{color:var(--red)}
+@media(max-width:800px){.account-page{grid-template-columns:1fr}.booking-record{display:block}.site-footer{grid-template-columns:1fr}.footer-links{grid-template-columns:1fr 1fr}.}
 @media(max-width:800px){.scan-page,.ai-page{grid-template-columns:1fr;padding:24px}}
 
 @media print{
