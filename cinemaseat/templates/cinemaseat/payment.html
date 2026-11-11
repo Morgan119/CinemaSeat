@@ -1,1 +1,45 @@
-{% load static %}<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Payment · CinemaSeat</title><link rel="stylesheet" href="{% static 'cinemaseat/style.css' %}"></head><body><nav><a class="brand" href="/">◉ <span>Cinema<span>Seat</span></span></a></nav><main class="payment-page"><a class="back" href="javascript:history.back()">← Back to seats</a><div class="payment-grid"><section class="auth-card"><p class="eyebrow">SECURE CHECKOUT</p><h1>Complete your<br><em>booking.</em></h1><p class="muted">{{movie}} · Seats: {{seat_list|join:', '}}</p><form method="post">{% csrf_token %}<h3>Payment method</h3><div class="payment-choice"><label class="pay-option"><input type="radio" name="method" value="mtn" checked> <b>MTN Mobile Money</b><span>⌁ MTN</span></label><label class="pay-option"><input type="radio" name="method" value="airtel"> <b>Airtel Money</b><span>◉ Airtel</span></label><label class="pay-option"><input type="radio" name="method" value="card"> <b>Card payment</b><span>Visa / Mastercard</span></label><label class="pay-option"><input type="radio" name="method" value="cash"> <b>Cash at cinema</b></label></div><label>Mobile number or card reference<input required placeholder="Enter payment details"></label><label class="check"><input type="checkbox" required> I agree to the cancellation policy</label><button class="btn primary full">Pay UGX {{total|floatformat:0}} →</button></form></section><aside class="summary"><p class="eyebrow">BOOKING SUMMARY</p><h2>{{movie}}</h2><p>Century Cinemax · Acacia Mall<br>Today · {{show_time}} · Screen 4</p><hr><p>Seats <b>{{seat_list|join:', '}}</b></p><p>Total <strong>UGX {{total|floatformat:0}}</strong></p></aside></div></main><a class="ai-launcher" href="/ai/" aria-label="Open CinemaSeat AI">✦ AI</a></body></html>
+{% load static %}<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Payment · CinemaSeat</title><link rel="stylesheet" href="{% static 'cinemaseat/style.css' %}"></head><body><nav><a class="brand" href="/">◉ <span>Cinema<span>Seat</span></span></a></nav><main class="payment-page"><a class="back" href="javascript:history.back()">← Back to seats</a><div class="payment-grid"><section class="auth-card"><p class="eyebrow">SECURE CHECKOUT</p><h1>Complete your<br><em>booking.</em></h1><p class="muted">{{movie}} · Seats: {{seat_list|join:', '}}</p>{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}<form id="payment-form" method="post">{% csrf_token %}<h3>Payment method</h3><div class="payment-choice"><label class="pay-option"><input type="radio" name="method" value="mtn" {% if selected_method == 'mtn' or not selected_method %}checked{% endif %}> <b>MTN Mobile Money</b><span>⌁ MTN</span></label><label class="pay-option"><input type="radio" name="method" value="airtel" {% if selected_method == 'airtel' %}checked{% endif %}> <b>Airtel Money</b><span>◉ Airtel</span></label><label class="pay-option"><input type="radio" name="method" value="card" {% if selected_method == 'card' %}checked{% endif %}> <b>Card payment</b><span>Visa / Mastercard</span></label><label class="pay-option"><input type="radio" name="method" value="cash" {% if selected_method == 'cash' %}checked{% endif %}> <b>Pay at entrance</b></label></div><label>Mobile number or card reference<input name="reference" required placeholder="Enter payment details"></label><label class="check"><input type="checkbox" required> I agree to the cancellation policy</label><button class="btn primary full">Pay UGX {{total|floatformat:0}} →</button></form></section><aside class="summary"><p class="eyebrow">BOOKING SUMMARY</p><h2>{{movie}}</h2><p>Century Cinemax · Acacia Mall<br>Today · {{show_time}} · Screen 4</p><hr><p>Seats <b>{{seat_list|join:', '}}</b></p><p>Total <strong>UGX {{total|floatformat:0}}</strong></p></aside></div></main><a class="ai-launcher" href="/ai/" aria-label="Open CinemaSeat AI">✦ AI</a><script>
+const paymentForm = document.getElementById('payment-form');
+const methodInputs = paymentForm.querySelectorAll('input[name="method"]');
+const referenceInput = paymentForm.querySelector('input[name="reference"]');
+
+const updatePlaceholder = () => {
+  const method = paymentForm.querySelector('input[name="method"]:checked')?.value || 'mtn';
+  if (method === 'mtn') {
+    referenceInput.placeholder = 'Enter MTN number';
+  } else if (method === 'airtel') {
+    referenceInput.placeholder = 'Enter Airtel number';
+  } else if (method === 'cash') {
+    referenceInput.value = 'Pay at entrance';
+    referenceInput.placeholder = 'Pay at entrance';
+  } else {
+    referenceInput.placeholder = 'Enter payment details';
+  }
+};
+
+methodInputs.forEach((input) => input.addEventListener('change', updatePlaceholder));
+paymentForm.addEventListener('submit', (event) => {
+  const method = paymentForm.querySelector('input[name="method"]:checked')?.value || 'mtn';
+  const value = referenceInput.value.trim().toLowerCase();
+
+  if (method === 'mtn' && /(airtel|airtelmoney)/.test(value)) {
+    event.preventDefault();
+    referenceInput.value = '';
+    alert('Select an MTN number for your MTN payment.');
+    return false;
+  }
+
+  if (method === 'airtel' && /(mtn|mtnmobilemoney)/.test(value)) {
+    event.preventDefault();
+    referenceInput.value = '';
+    alert('Select an Airtel number for your Airtel payment.');
+    return false;
+  }
+
+  if (method === 'cash') {
+    referenceInput.value = 'Pay at entrance';
+  }
+});
+
+updatePlaceholder();
+</script></body></html>
