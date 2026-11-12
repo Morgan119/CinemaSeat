@@ -69,6 +69,16 @@ def payment_matches_method(method, payment_details):
     return True
 
 
+def clean_movie_title(value):
+    if value is None:
+        return 'Selected movie'
+
+    title = ' '.join(str(value).strip().split())
+    if not title or title.lower() == 'movie':
+        return 'Selected movie'
+    return title
+
+
 def ticket_pdf(ticket):
     import fitz
     document = fitz.open()
@@ -109,7 +119,7 @@ def qr_image(payload):
 
 @login_required(login_url='/login/')
 def payment(request):
-    movie = request.GET.get('movie') or request.POST.get('movie') or 'Selected movie'
+    movie = clean_movie_title(request.GET.get('movie') or request.POST.get('movie'))
     seats = request.GET.get('seats') or request.POST.get('seats') or ''
     show_time = request.GET.get('time') or request.POST.get('time') or '6:30 PM'
     if not seats:
