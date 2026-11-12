@@ -2,6 +2,20 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
+from .payment_views import payment_matches_method
+
+
+class PaymentNetworkValidationTests(TestCase):
+    def test_detects_airtel_number_for_mtn_payment(self):
+        self.assertFalse(payment_matches_method('mtn', '0751234567'))
+
+    def test_detects_mtn_number_for_airtel_payment(self):
+        self.assertFalse(payment_matches_method('airtel', '0771234567'))
+
+    def test_allows_matching_network_number(self):
+        self.assertTrue(payment_matches_method('mtn', '0771234567'))
+        self.assertTrue(payment_matches_method('airtel', '0751234567'))
+
 
 class LoginRoleRedirectTests(TestCase):
     def setUp(self):
