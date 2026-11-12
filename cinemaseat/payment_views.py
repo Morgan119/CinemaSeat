@@ -19,19 +19,52 @@ METHODS = {
     'cash': 'Cash at cinema',
 }
 
+AIRTEL_PREFIXES = ('070', '075', '076', '079')
+MTN_PREFIXES = ('077', '078')
+
+
+def normalize_phone_number(value):
+    if value is None:
+        return ''
+    digits = re.sub(r'\D+', '', str(value))
+    if digits.startswith('256'):
+        digits = digits[3:]
+    return digits
+
+
+def detect_network_from_number(value):
+    digits = normalize_phone_number(value)
+    if not digits:
+        return None
+    if digits.startswith(AIRTEL_PREFIXES):
+        return 'airtel'
+    if digits.startswith(MTN_PREFIXES):
+        return 'mtn'
+    return None
+
 
 def payment_matches_method(method, payment_details):
     if method not in {'mtn', 'airtel'}:
         return True
 
-    value = (payment_details or '').strip().lower()
+    value = (payment_details or '').strip()
     if not value:
         return False
 
-    normalized = re.sub(r'[^a-z0-9]+', '', value)
-    if method == 'mtn' and ('airtel' in normalized or 'airtelmoney' in normalized):
+    normalized = re.sub(r'[^a-z0-9]+', '', value.lower())
+    explicit_network = detect_network_from_number(value)
+
+    if method == 'mtn' and (
+        'airtel' in normalized
+        or 'airtelmoney' in normalized
+        or explicit_network == 'airtel'
+    ):
         return False
-    if method == 'airtel' and ('mtn' in normalized or 'mtnmobilemoney' in normalized):
+    if method == 'airtel' and (
+        'mtn' in normalized
+        or 'mtnmobilemoney' in normalized
+        or explicit_network == 'mtn'
+    ):
         return False
     return True
 
