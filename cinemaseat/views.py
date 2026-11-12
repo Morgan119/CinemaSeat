@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from urllib.parse import quote_plus
 from .models import Movie, Ticket
 DATA=[
 ('Black Panther: Wakanda Forever','Action','2h 41m','PG-13',7.2,'Queen Ramonda fights to protect Wakanda from intervening world powers as the nation mourns King T’Challa.','/static/cinemaseat/posters/black panther.webp',True),
@@ -12,9 +13,22 @@ DATA=[
 ('Mission: Impossible — Dead Reckoning','Action','2h 43m','PG-13',7.7,'Ethan Hunt and his IMF team must track down a dangerous weapon.','/static/cinemaseat/posters/mission impossible.webp',False),
 ('Wonka','Family','1h 56m','PG',7.0,'A young chocolatier dreams of opening his own shop in a city famed for chocolate.','/static/cinemaseat/posters/wonka.webp',False),
 ('Kung Fu Panda 4','Animation','1h 34m','PG',6.3,'Po must train a new warrior when he becomes spiritual leader of the Valley of Peace.','/static/cinemaseat/posters/kungu fu panda 4.webp',False)]
+
+
+def build_trailer_url(title):
+    return f'https://www.youtube.com/results?search_query={quote_plus(f"{title} official trailer")}'
+
+
 def seed():
     if not Movie.objects.exists():
-        for x in DATA: Movie.objects.create(title=x[0],genre=x[1],duration=x[2],rating=x[3],score=x[4],description=x[5],poster=x[6],featured=x[7])
+        for x in DATA:
+            movie = Movie.objects.create(title=x[0],genre=x[1],duration=x[2],rating=x[3],score=x[4],description=x[5],poster=x[6],featured=x[7])
+            movie.trailer_url = build_trailer_url(movie.title)
+            movie.save(update_fields=['trailer_url'])
+    else:
+        for movie in Movie.objects.filter(trailer_url=''):
+            movie.trailer_url = build_trailer_url(movie.title)
+            movie.save(update_fields=['trailer_url'])
 @login_required(login_url='/login/')
 def home(request):
     seed()
@@ -23,9 +37,20 @@ def home(request):
         initials = (request.user.first_name or request.user.username)[:2].upper()
     return render(request, 'cinemaseat/home.html', {'movies': Movie.objects.all(), 'featured': Movie.objects.filter(featured=True).first(), 'user_initials': initials})
 @login_required(login_url='/login/')
-def movie_detail(request,movie_id): seed(); return render(request,'cinemaseat/detail.html',{'movie':get_object_or_404(Movie,id=movie_id)})
+def movie_detail(request,movie_id):
+    seed()
+    return render(request, 'cinemaseat/detail.html', {
+        'movie': get_object_or_404(Movie, id=movie_id),
+        'user_initials': (request.user.first_name or request.user.username)[:2].upper(),
+    })
+
 @login_required(login_url="/login/")
-def booking(request,movie_id): seed(); return render(request,'cinemaseat/booking.html',{'movie':get_object_or_404(Movie,id=movie_id)})
+def booking(request,movie_id):
+    seed()
+    return render(request, 'cinemaseat/booking.html', {
+        'movie': get_object_or_404(Movie, id=movie_id),
+        'user_initials': (request.user.first_name or request.user.username)[:2].upper(),
+    })
 @login_required(login_url='/login/')
 def movies_api(request): seed(); return JsonResponse({'movies':list(Movie.objects.values())})
 
