@@ -9,9 +9,10 @@
 </head>
 <body>
 <nav>
+  <button type="button" class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
   <a class="brand" href="/">◉ <span>Cinema<span>Seat</span></span></a>
   <div class="navlinks"><a href="/">Home</a><a class="active" href="/bookings/">My bookings</a><a href="/profile/">Profile</a><a href="/ai/">AI</a></div>
-  <div class="navright"><a class="avatar" href="/profile/">{{ user_initials }}</a></div>
+  <div class="navright"><div class="user-menu"><button class="avatar user-menu-toggle" type="button" aria-label="Open account menu" aria-expanded="false">{{ user_initials }}</button><div class="user-menu-panel"><a href="/profile/">Profile</a><a href="/logout/" class="logout">Log out</a></div></div></div>
 </nav>
 <main class="bookings-page">
   <p class="eyebrow">MY CINEMASEAT</p>

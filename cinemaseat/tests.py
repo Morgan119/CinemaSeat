@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from .payment_views import payment_matches_method
+from .payment_views import clean_movie_title, payment_matches_method
 
 
 class PaymentNetworkValidationTests(TestCase):
@@ -15,6 +15,11 @@ class PaymentNetworkValidationTests(TestCase):
     def test_allows_matching_network_number(self):
         self.assertTrue(payment_matches_method('mtn', '0771234567'))
         self.assertTrue(payment_matches_method('airtel', '0751234567'))
+
+    def test_clean_movie_title_does_not_use_generic_fallback(self):
+        self.assertEqual(clean_movie_title('Movie'), 'Selected movie')
+        self.assertEqual(clean_movie_title('   '), 'Selected movie')
+        self.assertEqual(clean_movie_title('  Black Panther  '), 'Black Panther')
 
 
 class LoginRoleRedirectTests(TestCase):
