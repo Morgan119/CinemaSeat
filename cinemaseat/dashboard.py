@@ -110,12 +110,10 @@ def reports_admin(request):
     tickets = Ticket.objects.all()
     methods = tickets.values('payment_method').annotate(
         booking_count=Count('id'),
-        total=Count('id'),
         revenue=Sum('total'),
     )
     movies = tickets.values('movie').annotate(
         booking_count=Count('id'),
-        total=Count('id'),
         revenue=Sum('total'),
     ).order_by('-revenue')
     if request.GET.get('download') == 'csv':
