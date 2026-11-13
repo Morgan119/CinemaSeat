@@ -3,7 +3,7 @@
 <div class="top"><div><p>REPORTS</p><h1>Cinema performance</h1></div><a class="btn" href="/admin/reports/?download=csv">Download CSV report</a></div>
 <section class="cards"><div class="card"><small>Today</small><strong>{{ today }}</strong></div><div class="card"><small>7 days</small><strong>{{ week }}</strong></div><div class="card"><small>30 days</small><strong>{{ month }}</strong></div><div class="card"><small>Revenue</small><strong>UGX {{ revenue|floatformat:0 }}</strong></div></section>
 <div class="layout">
-  <section class="panel"><h2>Payment methods</h2>{% for item in methods %}<div class="row"><span>{{ item.payment_method }}</span><b>{{ item.total }} · UGX {{ item.revenue }}</b></div>{% endfor %}</section>
-  <section class="panel"><h2>Movie revenue</h2>{% for item in movies %}<div class="row"><span>{{ item.movie }}</span><b>UGX {{ item.revenue }}</b></div>{% empty %}<p>No report data yet.</p>{% endfor %}</section>
+  <section class="panel"><h2>Payment methods</h2>{% for item in methods %}<div class="row"><span>{{ item.payment_method }}</span><b>{{ item.booking_count }} · UGX {{ item.revenue }}</b></div>{% endfor %}</section>
+  <section class="panel"><h2>Movie revenue</h2>{% for item in movies %}<div class="row"><span>{{ item.movie }}</span><b>{{ item.booking_count }} bookings · UGX {{ item.revenue }}</b></div>{% empty %}<p>No report data yet.</p>{% endfor %}</section>
 </div>
 {% endblock %}
