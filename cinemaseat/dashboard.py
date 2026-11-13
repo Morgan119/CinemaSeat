@@ -106,19 +106,32 @@ def bookings_admin(request):
 
 @staff_member_required(login_url='/admin/login/')
 def reports_admin(request):
-    if request.GET.get('download') == 'csv':
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="cinemaseat-bookings.csv"'
-        writer = csv.writer(response)
-        writer.writerow(['Reference', 'Customer', 'Movie', 'Time', 'Seats', 'Total', 'Payment', 'Status', 'Created'])
-        for ticket in Ticket.objects.order_by('-created_at'):
-            writer.writerow([ticket.reference, ticket.customer_name, ticket.movie, ticket.show_time, ticket.seats, ticket.total, ticket.payment_method, ticket.status, ticket.created_at])
-        return response
     counts = period_counts()
     tickets = Ticket.objects.all()
+    methods = tickets.values('payment_method').annotate(
+        booking_count=Count('id'),
+        total=Count('id'),
+        revenue=Sum('total'),
+    )
+    movies = tickets.values('movie').annotate(
+        booking_count=Count('id'),
+        total=Count('id'),
+        revenue=Sum('total'),
+    ).order_by('-revenue')
+    if request.GET.get('download') == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="cinemaseat-report-summary.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Report Type', 'Name', 'Booking Count', 'Revenue'])
+        for item in methods:
+            writer.writerow(['Payment Method', item['payment_method'], item['booking_count'], item['revenue'] or 0])
+        writer.writerow([])
+        for item in movies:
+            writer.writerow(['Movie', item['movie'], item['booking_count'], item['revenue'] or 0])
+        return response
     return render(request, 'cinemaseat/admin_reports.html', {
         **counts,
         'revenue': tickets.aggregate(total=Sum('total'))['total'] or 0,
-        'methods': tickets.values('payment_method').annotate(total=Count('id'), revenue=Sum('total')),
-        'movies': tickets.values('movie').annotate(total=Count('id'), revenue=Sum('total')).order_by('-revenue'),
+        'methods': methods,
+        'movies': movies,
     })
